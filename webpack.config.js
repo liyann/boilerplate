@@ -1,10 +1,17 @@
+<<<<<<< HEAD
 var path = require("path");
 const webpack = require("webpack"); //访问内置的插件
 var HtmlWebpackPlugin = require("html-webpack-plugin");
+=======
+var path = require('path');
+const webpack = require('webpack'); //to access built-in plugins
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+>>>>>>> 2141d569f2241fda7ea241a498a2d8e18589152d
 
 module.exports = {
   entry: "./src/index.js",
   output: {
+<<<<<<< HEAD
     filename: "bundle.js",
     path: path.resolve(__dirname, "dist")
   },
@@ -27,4 +34,20 @@ module.exports = {
     ]
   },
   plugins: [new HtmlWebpackPlugin({ template: "./src/index.html" })]
+=======
+    filename: '[hash].js',
+    path: path.resolve(__dirname, 'dist'),
+    sourceMapFilename: '[file].map'
+  },
+  plugins: [
+    new webpack.optimize.UglifyJsPlugin({sourceMap:true}),
+    new HtmlWebpackPlugin({ template: './src/index.html' }),
+    //Plugin生成sourcemap
+  //   new webpack.SourceMapDevToolPlugin({
+  //     filename: '[name].js.map',
+  //     exclude: ['vendor.js']
+  //   })
+  ],
+  devtool: 'source-map'
+>>>>>>> 2141d569f2241fda7ea241a498a2d8e18589152d
 };

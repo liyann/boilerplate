@@ -8,12 +8,15 @@ class A {
   constructor() {
     this.state = a;
   }
-  report(){
-      console.log('report')
+  report() {
+    console.log("report");
   }
 }
 
-let newA=new A()
+let newA = new A();
 console.log(newA);
-console.log(A.prototype)
-console.log(A.p)
+console.log(A.prototype);
+console.log(A.p);
+let newA = new A();
+console.log(newA);
+console.log(A.prototype);
