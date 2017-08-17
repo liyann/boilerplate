@@ -43,3 +43,4 @@ Object.defineProperty(A, 'p', {
 var newA = new A();
 console.log(newA);
 console.log(A.prototype);
+console.log(A.p);

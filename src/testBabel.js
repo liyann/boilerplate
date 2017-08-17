@@ -16,3 +16,4 @@ class A {
 let newA=new A()
 console.log(newA);
 console.log(A.prototype)
+console.log(A.p)
