@@ -5,44 +5,37 @@ let MIME = {
   ".css": "text/css",
   ".js": "application/javascript"
 };
-function combineFiles(pathnames, callback) {
-  let output = [];
+
+function validateFile(pathnames, callback) {
   (function next(i, len) {
     if (i < len) {
-      fs.readFile(pathnames[i], function(err, data) {
+      fs.stat(pathnames[i], function(err, stats) {
         if (err) {
           callback(err);
+        } else if (!stats.isFile()) {
+          callback(new Error(`${pathnames[i]} :It is not a file!`));
         } else {
-          output.push(data);
           next(i + 1, len);
         }
       });
     } else {
-      callback(null, Buffer.concat(output));
+      callback(null, pathnames);
     }
   })(0, pathnames.length);
 }
 
-function main(argv) {
-  let config = JSON.parse(fs.readFileSync(argv[0], "utf-8")),
-    root = config.root || ".",
-    port = config.port || 80;
-  http
-    .createServer(function(request, response) {
-      let urlInfo = parseURL(root, request.url);
-      combineFiles(urlInfo.pathnames, function(err, data) {
-        if (err) {
-          response.writeHead(404);
-          response.end(err.message);
-        } else {
-          response.writeHead(200, {
-            "Content-Type": urlInfo.mime
-          });
-          response.end(data);
-        }
+function outputFiles(pathnames, writer) {
+  (function next(i, len) {
+    if (i < len) {
+      let reader = fs.createReadStream(pathnames[i]);
+      reader.pipe(writer, { end: false });
+      reader.on("end", function() {
+        next(i + 1, len);
       });
-    })
-    .listen(port);
+    } else {
+      writer.end();
+    }
+  })(0, pathnames.length);
 }
 
 function parseURL(root, url) {
@@ -52,6 +45,7 @@ function parseURL(root, url) {
   }
   parts = url.split("??");
   base = parts[0];
+  console.log(parts[1]);
   pathnames = parts[1].split(",").map(function(value) {
     return path.join(root, base, value);
   });
@@ -60,4 +54,29 @@ function parseURL(root, url) {
     pathnames: pathnames
   };
 }
+
+function main(argv) {
+  let config = JSON.parse(fs.readFileSync(argv[0], "utf-8")),
+    root = config.root || ".",
+    port = config.port || 80;
+  http
+    .createServer(function(request, response) {
+      let urlInfo = parseURL(root, request.url);
+      console.log(urlInfo);
+      validateFile(urlInfo.pathnames, function(err, pathnames) {
+        if (err) {
+          response.writeHead(400);
+          response.end(err.message);
+        } else {
+          response.writeHead(200, {
+            "Content-Type": urlInfo.mime
+          });
+          outputFiles(pathnames, response);
+        }
+      });
+    })
+    .listen(port);
+}
+
 main(process.argv.slice(2));
+console.log(process.argv[1]);
